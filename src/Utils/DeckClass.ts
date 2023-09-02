@@ -25,7 +25,7 @@ class DeckClass {
   }
 
   private createDeck(): void {
-    const suits = ['spades', 'hearts', 'diamonds', 'clubs'];
+    const suits = ['♠', '♥', '♦', '♣'];
     const values = [
       'A',
       '2',

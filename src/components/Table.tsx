@@ -1,7 +1,8 @@
-import { Card } from './Card';
 import GameClass from '../Utils/GameClass';
 import { useEffect, useState } from 'react';
 import { CardType } from '../types/CardType';
+import { Player } from './Player';
+import { Players } from '../enum/Names.ts';
 
 export function Table() {
   const [game] = useState<GameClass>(new GameClass());
@@ -11,22 +12,34 @@ export function Table() {
     setPlayerHand(game.getPlayerHand());
   }, [game]);
 
-  const handleHit = () => {
-    game.hit();
+  const updatePlayerHand = () => {
     const updatedPlayerHand = [...game.getPlayerHand()];
     setPlayerHand(updatedPlayerHand);
   };
 
+  const handleHit = () => {
+    game.hit();
+    updatePlayerHand();
+  };
+  const handleStand = () => {
+    game.stand();
+    updatePlayerHand();
+  };
+
   return (
     <>
-      <Card />
-      {playerHand.map((card: CardType, index) => (
-        <p key={index}>{`${card.value} - ${card.suit}`}</p>
-      ))}
-
-      <button type='button' onClick={handleHit}>
-        Hit
-      </button>
+      <Player
+        hand={game.getDealerHand()}
+        role={Players.Dealer}
+        gameStatus={game.getGameStatus()}
+      />
+      <Player
+        hand={playerHand}
+        handleHit={handleHit}
+        handleStand={handleStand}
+        role={Players.Player}
+        gameStatus={game.getGameStatus()}
+      />
     </>
   );
 }

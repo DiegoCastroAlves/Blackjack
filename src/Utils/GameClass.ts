@@ -1,60 +1,74 @@
-import { Status } from '../enum/Status';
+import { GameWinner } from '../enum/Status';
 import { CardType } from '../types/CardType';
+import { Dealer } from '../types/DealerType';
+import { GameStatus } from '../types/GameStatusType';
+import { Player } from '../types/PlayerType';
 import DeckClass from './DeckClass';
 
 class GameClass {
   private deck: DeckClass;
-  private dealerHand: CardType[] = [];
-  private playerHand: CardType[] = [];
-  private isGameOver: boolean = false;
+  private dealer: Dealer;
+  private player: Player;
+  private gameStatus: GameStatus;
 
   constructor() {
     this.deck = new DeckClass();
+    this.dealer = {
+      Hand: [],
+      Score: 0,
+    };
+    this.player = {
+      Hand: [],
+      Score: 0,
+    };
+    this.gameStatus = {
+      IsOver: false,
+      Winner: GameWinner.Undetermined,
+    };
     this.startGame();
   }
 
-  private checkWinner(): string | void {
+  private checkWinner(): void {
     const dealerScore = this.getDealerScore();
     const playerScore = this.getPlayerScore();
 
-    if (this.isGameOver) {
+    if (this.gameStatus.IsOver) {
       if (dealerScore > 21) {
-        return Status.WIN;
+        this.gameStatus.Winner = GameWinner.Player;
       }
 
       if (playerScore > 21) {
-        return Status.LOSE;
+        this.gameStatus.Winner = GameWinner.Dealer;
       }
 
       if (dealerScore === playerScore) {
-        return Status.DRAW;
+        this.gameStatus.Winner = GameWinner.Draw;
       }
 
       if (dealerScore > playerScore) {
-        return Status.LOSE;
+        this.gameStatus.Winner = GameWinner.Dealer;
       }
-      return Status.WIN;
     }
   }
 
   private dealCards(): void {
     for (let i = 0; i < 2; i++) {
-      this.dealerHand.push(this.deck.drawCard());
-      this.playerHand.push(this.deck.drawCard());
+      this.dealer.Hand.push(this.deck.drawCard());
+      this.player.Hand.push(this.deck.drawCard());
     }
   }
 
   private getDealerScore(): number {
-    return this.calculateScore(this.dealerHand);
+    return this.calculateScore(this.dealer.Hand);
   }
 
   private getPlayerScore(): number {
-    if (this.calculateScore(this.playerHand) === 21) {
-      this.isGameOver = true;
+    if (this.calculateScore(this.player.Hand) === 21) {
+      this.gameStatus.IsOver = true;
       this.checkWinner();
     }
 
-    return this.calculateScore(this.playerHand);
+    return this.calculateScore(this.player.Hand);
   }
 
   private calculateScore(hand: CardType[]): number {
@@ -79,33 +93,35 @@ class GameClass {
   }
 
   public hit(): void {
-    if (!this.isGameOver) {
-      this.playerHand.push(this.deck.drawCard());
+    if (!this.gameStatus.IsOver) {
+      this.player.Hand.push(this.deck.drawCard());
 
       if (this.getPlayerScore() > 21) {
-        this.isGameOver = true;
+        this.gameStatus.IsOver = true;
         this.checkWinner();
       }
     }
   }
 
   public stand(): void {
-    if (!this.isGameOver) {
+    if (!this.gameStatus.IsOver) {
       while (this.getDealerScore() < 17) {
-        this.dealerHand.push(this.deck.drawCard());
+        console.log('Dealer hits');
+
+        this.dealer.Hand.push(this.deck.drawCard());
       }
 
-      this.isGameOver = true;
+      this.gameStatus.IsOver = true;
       this.checkWinner();
     }
   }
 
   public getDealerHand(): CardType[] {
-    return this.dealerHand;
+    return this.dealer.Hand;
   }
 
   public getPlayerHand(): CardType[] {
-    return this.playerHand;
+    return this.player.Hand;
   }
 
   private startGame(): void {
@@ -115,6 +131,10 @@ class GameClass {
     this.dealCards();
     this.getDealerScore();
     this.getPlayerScore();
+  }
+
+  public getGameStatus(): GameStatus {
+    return this.gameStatus;
   }
 }
 

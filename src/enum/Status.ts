@@ -1,5 +1,6 @@
-export enum Status {
-  WIN = 'You win!',
-  LOSE = 'You lose!',
-  DRAW = 'Draw!',
+export enum GameWinner {
+  Dealer = 'Dealer',
+  Player = 'Player',
+  Draw = 'Draw',
+  Undetermined = 'Undetermined',
 }
